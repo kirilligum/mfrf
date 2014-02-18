@@ -16,7 +16,8 @@ int main(int argc, char const *argv[]) {
   cout << " hi \n";
   cout << "Creating train data and responses Mat\n";
   Mat training_data, training_class;
-  tie(training_data,training_class) = get_data_and_class("sp500.csv");
+  Mat sample_data;
+  tie(training_data,training_class,sample_data) = get_data_and_class("sp500.csv");
   int ATTRIBUTES_PER_SAMPLE = 2;
   cout << "done\n";
   cout << "set parameters for random forest\n";
