@@ -17,10 +17,11 @@ int main(int argc, char const *argv[]) {
   cout << "Creating train data and responses Mat\n";
   Mat training_data, training_class;
   tie(training_data,training_class) = get_data_and_class("sp500.csv");
+  int ATTRIBUTES_PER_SAMPLE = 2;
   cout << "done\n";
   cout << "set parameters for random forest\n";
-        //float priors[] = vector<float>(16,1.0).data();  // weights of each classification for classes
-        //// (all equal as equal samples of each digit)
+        //float priors[] = {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
+        //float *priors = vector<float>(16,1.0).data();  // weights of each classification for classes (all equal as equal samples of each digit)
 
         //CvRTParams params = CvRTParams(25, // max depth
                                        //5, // min sample count
@@ -35,10 +36,14 @@ int main(int argc, char const *argv[]) {
                                        //CV_TERMCRIT_ITER |	CV_TERMCRIT_EPS // termination cirteria
                                       //);
 
-  //cout << "run random forest training \n";
-        //CvRTrees* rtree = new CvRTrees;
+  cout << "run random forest training \n";
+    //Mat var_type = Mat(ATTRIBUTES_PER_SAMPLE + 1, 1, CV_8U );
+    //var_type.setTo(Scalar(CV_VAR_NUMERICAL) ); // all inputs are numerical
+        CvRTrees* rtree = new CvRTrees;
         //const char *var_type="ord";
+        rtree->train(training_data, CV_ROW_SAMPLE, training_class);
         //rtree->train(training_data, CV_ROW_SAMPLE, training_class,
+                     //Mat(), Mat(), var_type, Mat(), params);
                      //Mat(), Mat(), var_type, Mat(), params);
   //cout << "make a prediction\n";
   //cout << "calculate the error for the price\n";
