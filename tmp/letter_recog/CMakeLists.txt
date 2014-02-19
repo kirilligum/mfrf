@@ -1,0 +1,6 @@
+cmake_minimum_required(VERSION 2.8)
+project( main )
+find_package( OpenCV REQUIRED )
+add_executable( letter_recog letter_recog.cpp )
+target_link_libraries( letter_recog ${OpenCV_LIBS} )
+
