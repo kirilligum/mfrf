@@ -120,15 +120,16 @@ std::tuple<
       if(i<ey.size()-3) {
         training_data.at<float>(i,0) = (float)dey;
         training_data.at<float>(i,1) = (float)droc;
-        training_class.at<float>(i,0) = (int)dprice;
+        training_class.at<float>(i,0) = (int)(dprice*1e1);
         //training_class.at<float>(i,0) = (float)dprice;
       } 
-      else if(i==ey.size()-3) {
+      if(i==0) {
+      //else if(i==ey.size()-3) {
         sample_data.at<float>(0,0) = (float)dey;
         sample_data.at<float>(0,1) = (float)droc;
       } 
       else {
-        std::cout << "error in get_data_and_class \n";
+        //std::cout << "error in get_data_and_class \n";
         //std::cout << i << ".";
       }
     }

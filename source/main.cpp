@@ -18,6 +18,12 @@ int main(int argc, char const *argv[]) {
   Mat training_data, training_class;
   Mat sample_data;
   tie(training_data,training_class,sample_data) = get_data_and_class("sp500.csv");
+  //ofstream otd("training_data.txt");
+  //otd << training_data <<endl;;
+  ofstream("training_data.txt") << training_data <<endl;;
+  ofstream("training_class.txt") << training_class <<endl;;
+  ofstream("sample_data.txt") << sample_data <<endl;;
+  //fs <<  "training_data" << Mat::eye(3,3,CV_32F);
   int ATTRIBUTES_PER_SAMPLE = 2;
   cout << "done\n";
   cout << "set parameters for random forest\n";
@@ -40,13 +46,14 @@ int main(int argc, char const *argv[]) {
   cout << "run random forest training \n";
     //Mat var_type = Mat(ATTRIBUTES_PER_SAMPLE + 1, 1, CV_8U );
     //var_type.setTo(Scalar(CV_VAR_NUMERICAL) ); // all inputs are numerical
-        CvRTrees* rtree = new CvRTrees;
+  CvRTrees* rtree = new CvRTrees;
         //const char *var_type="ord";
-        rtree->train(training_data, CV_ROW_SAMPLE, training_class);
+  rtree->train(training_data, CV_ROW_SAMPLE, training_class);
         //rtree->train(training_data, CV_ROW_SAMPLE, training_class,
                      //Mat(), Mat(), var_type, Mat(), params);
                      //Mat(), Mat(), var_type, Mat(), params);
-  //cout << "make a prediction\n";
+  cout << "make a prediction\n";
+  cout << rtree->predict(sample_data);
   //cout << "calculate the error for the price\n";
   //cout << "make a distribution of errors\n";
   return 0;
