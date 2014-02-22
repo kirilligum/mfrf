@@ -30,7 +30,7 @@ std::tuple<
   > get_data_and_class(std::string file_name) {
   using namespace std;
   using namespace cv;
-  bool new_parse=0;
+  bool new_parse=1;
   std::vector<std::vector<std::pair<std::string,double>>> ey;
   std::vector<std::vector<std::pair<std::string,double>>> roc;
   vector<vector<pair<string,double>>> price;
@@ -47,11 +47,13 @@ std::tuple<
     cout << "tf size: " << tf.size() << "\n";
     //ofstream otf("tf.dat");
     //for(auto itic:tf) { 
-      //otf << "*** " <<itic.first << "\n";
+      //otf << "*** " <<itic.first << " - ";
       //for(auto idate:itic.second) { 
         //for(auto i:idate) {///> erase tics with nan
-          //otf << i.first << "-" << i.second <<"\n"; 
-        //} } } 
+          //otf << i.first << "-" << i.second <<"  "; 
+        //} } 
+      //otf << endl;
+    //} 
     // get factors:
     // create a vector of pair<tic,f> for each factor
     ey = calc_ey(tf); ///> BUG gives out nan
