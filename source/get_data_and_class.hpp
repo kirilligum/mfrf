@@ -89,11 +89,13 @@ std::tuple<
   // get std. div of the price
   // get eta = (price)^alpha/stddiv
   // fill training_data with with change in factors up to the 2 last points and training_class with eta
-  cv::Mat training_data(ey.size()-3,2,CV_32FC1 );
-  cv::Mat training_class(ey.size()-3,1,CV_32FC1 );
+  //int samples = 3;
+  int samples = ey.size()-3;
+  cv::Mat training_data(samples,2,CV_32FC1 );
+  cv::Mat training_class(samples,1,CV_32FC1 );
   cv::Mat sample_data(1,2,CV_32FC1 );
-  if(ey.size()!=roc.size()||ey.back().size()!=roc.back().size()) cout << "error: size problems with roc and ey\n";
-  for (size_t i = 0; i < ey.size()-2; ++i) { ///> time-wise
+  //if(ey.size()!=roc.size()||ey.back().size()!=roc.back().size()) cout << "error: size problems with roc and ey\n";
+  for (size_t i = 0; i < samples+1; ++i) { ///> time-wise
     for (size_t j = 0; j < ey[i].size(); ++j) { ///> stock-symbol-wise
   //cv::Mat training_data(2,2,CV_32FC1 );
   //cv::Mat training_class(2,1,CV_32FC1 );
@@ -117,10 +119,11 @@ std::tuple<
         //training_data.at<float>(i,0)  << "  " <<
         //training_data.at<float>(i,1)  << "  " <<
         //training_class.at<float>(i,0) << "  --\n";
-      if(i<ey.size()-3) {
+      if(i<samples) {
         training_data.at<float>(i,0) = (float)dey;
         training_data.at<float>(i,1) = (float)droc;
-        training_class.at<float>(i,0) = (int)(dprice*1e1);
+        training_class.at<float>(i,0) = (dprice*1e1>0)?1:0;
+        //training_class.at<float>(i,0) = (int)(dprice*1e1);
         //training_class.at<float>(i,0) = (float)dprice;
       } 
       if(i==0) {

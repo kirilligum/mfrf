@@ -27,33 +27,47 @@ int main(int argc, char const *argv[]) {
   int ATTRIBUTES_PER_SAMPLE = 2;
   cout << "done\n";
   cout << "set parameters for random forest\n";
-        //float priors[] = {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
+        float priors[] = {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
         //float *priors = vector<float>(16,1.0).data();  // weights of each classification for classes (all equal as equal samples of each digit)
 
-        //CvRTParams params = CvRTParams(25, // max depth
-                                       //5, // min sample count
-                                       //0, // regression accuracy: N/A here
-                                       //false, // compute surrogate split, no missing data
-                                       //15, // max number of categories (use sub-optimal algorithm for larger numbers)
+        CvRTParams params = CvRTParams(25, // max depth
+                                       1, // min sample count
+                                       0, // regression accuracy: N/A here
+                                       false, // compute surrogate split, no missing data
+                                       15, // max number of categories (use sub-optimal algorithm for larger numbers)
+                                       0, // the array of priors
                                        //priors, // the array of priors
-                                       //false,  // calculate variable importance
-                                       //4,       // number of variables randomly selected at node and used to find the best split(s).
-                                       //100,	 // max number of trees in the forest
-                                       //0.01f,				// forrest accuracy
-                                       //CV_TERMCRIT_ITER |	CV_TERMCRIT_EPS // termination cirteria
-                                      //);
+                                       false,  // calculate variable importance
+                                       4,       // number of variables randomly selected at node and used to find the best split(s).
+                                       100,	 // max number of trees in the forest
+                                       0.01f,				// forrest accuracy
+                                       CV_TERMCRIT_ITER |	CV_TERMCRIT_EPS // termination cirteria
+                                      );
 
   cout << "run random forest training \n";
-    //Mat var_type = Mat(ATTRIBUTES_PER_SAMPLE + 1, 1, CV_8U );
-    //var_type.setTo(Scalar(CV_VAR_NUMERICAL) ); // all inputs are numerical
+    Mat var_type = Mat(ATTRIBUTES_PER_SAMPLE + 1, 1, CV_8U );
+    var_type.setTo(Scalar(CV_VAR_NUMERICAL) ); // all inputs are numerical
   CvRTrees* rtree = new CvRTrees;
         //const char *var_type="ord";
-  rtree->train(training_data, CV_ROW_SAMPLE, training_class);
-        //rtree->train(training_data, CV_ROW_SAMPLE, training_class,
+  //rtree->train(training_data, CV_ROW_SAMPLE, training_class);
+        rtree->train(training_data, CV_ROW_SAMPLE, training_class,
+                     Mat(), Mat(), var_type, Mat(), params);
                      //Mat(), Mat(), var_type, Mat(), params);
-                     //Mat(), Mat(), var_type, Mat(), params);
+  cout << " get_tree_count " << rtree->get_tree_count() << endl;
+  rtree->get_tree(0)->save("tree00.yml");
   cout << "make a prediction\n";
-  cout << rtree->predict(sample_data);
+  //for (size_t i = 0; i < training_class.size(); ++i) {
+  for (size_t i = 0; i < training_data.rows; ++i) {
+    //Mat sample(1,2,CV_32FC1 );
+    //cout << training_data.row(i) << "  ";
+    //sample.row(0) = training_data.row(i);
+    Mat sample = training_data.row(i);
+    cout << sample << "  ";
+    cout << training_class.row(i) << "  ";
+    cout << rtree->predict(sample);
+    cout << endl;
+  }
+  //}
   //cout << "calculate the error for the price\n";
   //cout << "make a distribution of errors\n";
   return 0;
