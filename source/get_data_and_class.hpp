@@ -92,10 +92,14 @@ std::tuple<
   // get eta = (price)^alpha/stddiv
   // fill training_data with with change in factors up to the 2 last points and training_class with eta
   //int samples = 3;
+  vector<int> bins = {-3,-2,-1,0,1,2,3};
+  cout << "ey.size = " << ey.size() << "    ey.front().size()" << ey.front().size() << endl;
   int samples = ey.size()-3;
-  cv::Mat training_data(samples,2,CV_32FC1 );
-  cv::Mat training_class(samples,1,CV_32FC1 );
-  cv::Mat sample_data(1,2,CV_32FC1 );
+  int tottd = samples*ey.front().size(); ///> total training data
+  cv::Mat training_data(tottd,2,CV_32FC1 );
+  //cv::Mat training_class(tottd,1,CV_32FC1 );
+  cv::Mat training_class(tottd,1,CV_32SC1 );
+  cv::Mat sample_data(ey.front().size(),2,CV_32FC1 );
   //if(ey.size()!=roc.size()||ey.back().size()!=roc.back().size()) cout << "error: size problems with roc and ey\n";
   for (size_t i = 0; i < samples+1; ++i) { ///> time-wise
     for (size_t j = 0; j < ey[i].size(); ++j) { ///> stock-symbol-wise
@@ -121,21 +125,31 @@ std::tuple<
         //training_data.at<float>(i,0)  << "  " <<
         //training_data.at<float>(i,1)  << "  " <<
         //training_class.at<float>(i,0) << "  --\n";
-      if(i<samples) {
-        training_data.at<float>(i,0) = (float)dey;
-        training_data.at<float>(i,1) = (float)droc;
-        training_class.at<float>(i,0) = (dprice*1e1>0)?1:0;
+      int itd = i*(samples+1)+j;
+      if(i<samples) { ///> so that the last few in time series are not included
+        training_data.at<float>(itd,0) = (float)dey;
+        training_data.at<float>(itd,1) = (float)droc;
+        //training_class.at<float>(itd,0) = (dprice*1e1>0)?1:0;
+        //training_class.at<int>(itd,0) = (dprice*1e1>0)?1:0;
+        int label = (int)(dprice*1e1);
+        if(label <= bins.front()) training_class.at<int>(itd,0) = bins[0];
+        for(int j = 0; j<bins.size()-1;++j) 
+          if(label>bins[j]&&label<=bins[j+1]) training_class.at<int>(itd,0) = bins[j+1];
+        if(label>bins.back()) training_class.at<int>(itd,0) = bins.back();
         //training_class.at<float>(i,0) = (int)(dprice*1e1);
         //training_class.at<float>(i,0) = (float)dprice;
-      } 
-      if(i==0) {
+      } else if (i==samples){
+        sample_data.at<float>(j,0) = (float)dey;
+        sample_data.at<float>(j,1) = (float)droc;
+      }
+      //if(i==0) {
       //else if(i==ey.size()-3) {
-        sample_data.at<float>(0,0) = (float)dey;
-        sample_data.at<float>(0,1) = (float)droc;
-      } 
+        //sample_data.at<float>(j,0) = (float)dey;
+        //sample_data.at<float>(j,1) = (float)droc;
+      //} 
       else {
         //std::cout << "error in get_data_and_class \n";
-        //std::cout << i << ".";
+        std::cout << i << ".";
       }
     }
   }
