@@ -17,7 +17,8 @@ int main(int argc, char const *argv[]) {
   cout << "Creating train data and responses Mat\n";
   Mat training_data, training_class;
   Mat sample_data;
-  tie(training_data,training_class,sample_data) = get_data_and_class("sp500.csv");
+  std::vector<double> d_last_price;
+  tie(training_data,training_class,sample_data,d_last_price) = get_data_and_class("sp500.csv");
   ofstream("training_data.txt") << training_data <<endl;;
   ofstream("training_class.txt") << training_class <<endl;;
   ofstream("sample_data.txt") << sample_data <<endl;;
@@ -35,7 +36,7 @@ int main(int argc, char const *argv[]) {
       false,  // calculate variable importance
       4,       // number of variables randomly selected at node and used to find the best split(s).
       100,	 // max number of trees in the forest
-      0.01f,				// forrest accuracy
+      0.0000001f,				// forrest accuracy
       CV_TERMCRIT_ITER |	CV_TERMCRIT_EPS // termination cirteria
       );
   cout << "run random forest training \n";
@@ -61,10 +62,28 @@ int main(int argc, char const *argv[]) {
     //cout << endl;
   //}
   //cout << rtree->predict(sample_data);
-  for(int i = 0 ; i< sample_data.rows ; ++i)
-    cout << rtree->predict(sample_data.row(i)) << " ";
+  std::vector<double> quarter_profit(7,0.0);
+  vector<int> scount(7,0);
+  for(int i = 0 ; i< sample_data.rows ; ++i){
+    double signal = rtree->predict(sample_data.row(i));
+    double dlast = d_last_price[i];
+    //cout << signal << "=" << dlast << "  ";
+    for(int i=0;i<7;++i) {
+      if(signal==i-3) {
+        quarter_profit[i]+=dlast;
+        ++scount[i];
+      }
+    }
+    //if(signal==2) { quarter_profit+=dlast; ++scount;}
+  }
   cout << endl;
-  //cout << "calculate the error for the price\n";
+  for(int i=0;i<7;++i) {
+    double qp = 0.0;
+    if(scount[i]!=0) qp=quarter_profit[i]/scount[i];
+    cout << qp << setw(20) << " profit with signal "<<i-3<<"   stocks with signal=" << scount[i] << " \n";
+  }
+  //cout << quarter_profit/scount << " profit with signal 2 \n";
+  cout << "calculate the error for the price\n";
   //cout << "make a distribution of errors\n";
   return 0;
 }

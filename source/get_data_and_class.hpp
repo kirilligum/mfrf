@@ -7,6 +7,7 @@
 #include <iterator>
 #include <cstdlib>
 #include <tuple>
+#include <math.h>
 #include <opencv2/core/core.hpp>
 #include <opencv2/ml/ml.hpp>
 #include <boost/archive/text_oarchive.hpp>
@@ -26,7 +27,8 @@
 std::tuple<
   cv::Mat,
   cv::Mat,
-  cv::Mat
+  cv::Mat,
+  std::vector<double>
   > get_data_and_class(std::string file_name) {
   using namespace std;
   using namespace cv;
@@ -94,12 +96,13 @@ std::tuple<
   //int samples = 3;
   vector<int> bins = {-3,-2,-1,0,1,2,3};
   cout << "ey.size = " << ey.size() << "    ey.front().size()" << ey.front().size() << endl;
-  int samples = ey.size()-3;
+  int samples = ey.size()-4;
   int tottd = samples*ey.front().size(); ///> total training data
   cv::Mat training_data(tottd,2,CV_32FC1 );
   //cv::Mat training_class(tottd,1,CV_32FC1 );
   cv::Mat training_class(tottd,1,CV_32SC1 );
   cv::Mat sample_data(ey.front().size(),2,CV_32FC1 );
+  vector<double> d_last_price(price.front().size());
   //if(ey.size()!=roc.size()||ey.back().size()!=roc.back().size()) cout << "error: size problems with roc and ey\n";
   for (size_t i = 0; i < samples+1; ++i) { ///> time-wise
     for (size_t j = 0; j < ey[i].size(); ++j) { ///> stock-symbol-wise
@@ -107,12 +110,21 @@ std::tuple<
   //cv::Mat training_class(2,1,CV_32FC1 );
   //for (size_t i = 0; i < 2; ++i) { ///> time-wise
     //for (size_t j = 0; j < 3; ++j) { ///> stock-symbol-wise
-      double dey = ey[i+1][j].second - ey[i][j].second;
-      double droc = roc[i+1][j].second - roc[i][j].second;
+      double dey = 0.0;
+        dey = ey[i+1][j].second - ey[i][j].second;
+      double droc = 0.0;
+        droc = roc[i+1][j].second - roc[i][j].second;
       double stddiv=1.0;
-      double dprice = pow((
-            price[i+2][j].second - price[i+1][j].second)/price[i+2][j].second
+      double dprice = 0.0;
+      if(price[i+2][j].second!=0.0) 
+        dprice = pow((
+              price[i+2][j].second - price[i+1][j].second) 
+            /price[i+2][j].second
               ,1)/stddiv;
+      if(dprice!=dprice) cout << " nan at ("<< i<< ","<< j<<")    " 
+        << price[i+2][j].second << "  "
+        << price[i+1][j].second << "  "
+        << "\n";
       //int label =0;
       //for (size_t l = 0; l < 16+1; ++l) {
         //if(dprice>pow(l-8,2)*0.01 && dprice<pow(l-7,2)*0.01 ) label = l;
@@ -141,6 +153,7 @@ std::tuple<
       } else if (i==samples){
         sample_data.at<float>(j,0) = (float)dey;
         sample_data.at<float>(j,1) = (float)droc;
+        d_last_price[j] = dprice;
       }
       //if(i==0) {
       //else if(i==ey.size()-3) {
@@ -153,5 +166,5 @@ std::tuple<
       }
     }
   }
-  return std::make_tuple(training_data,training_class,sample_data);
+  return std::make_tuple(training_data,training_class,sample_data,d_last_price);
 }
