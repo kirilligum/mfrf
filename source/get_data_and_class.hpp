@@ -97,7 +97,8 @@ std::tuple<
   vector<int> bins = {-3,-2,-1,0,1,2,3};
   cout << "ey.size = " << ey.size() << "    ey.front().size()" << ey.front().size() << endl;
   int samples = ey.size()-4;
-  int tottd = samples*ey.front().size(); ///> total training data
+  int leave_out = 5;
+  int tottd = (samples-leave_out)*ey.front().size(); ///> total training data
   cv::Mat training_data(tottd,2,CV_32FC1 );
   //cv::Mat training_class(tottd,1,CV_32FC1 );
   cv::Mat training_class(tottd,1,CV_32SC1 );
@@ -137,16 +138,16 @@ std::tuple<
         //training_data.at<float>(i,0)  << "  " <<
         //training_data.at<float>(i,1)  << "  " <<
         //training_class.at<float>(i,0) << "  --\n";
-      int itd = i*(samples+1)+j;
-      if(i<samples) { ///> so that the last few in time series are not included
+      int itd = i*((samples-leave_out)+1)+j;
+      if(i<(samples-leave_out)) { ///> so that the last few in time series are not included
         training_data.at<float>(itd,0) = (float)dey;
         training_data.at<float>(itd,1) = (float)droc;
         //training_class.at<float>(itd,0) = (dprice*1e1>0)?1:0;
         //training_class.at<int>(itd,0) = (dprice*1e1>0)?1:0;
         int label = (int)(dprice*1e1);
         if(label <= bins.front()) training_class.at<int>(itd,0) = bins[0];
-        for(int j = 0; j<bins.size()-1;++j) 
-          if(label>bins[j]&&label<=bins[j+1]) training_class.at<int>(itd,0) = bins[j+1];
+        for(int j = 1; j<bins.size()-1;++j) 
+          if(label>bins[j]-0.5&&label<=bins[j]+0.5) training_class.at<int>(itd,0) = bins[j];
         if(label>bins.back()) training_class.at<int>(itd,0) = bins.back();
         //training_class.at<float>(i,0) = (int)(dprice*1e1);
         //training_class.at<float>(i,0) = (float)dprice;
@@ -162,7 +163,7 @@ std::tuple<
       //} 
       else {
         //std::cout << "error in get_data_and_class \n";
-        std::cout << i << ".";
+        //std::cout << i << ".";
       }
     }
   }

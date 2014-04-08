@@ -35,8 +35,8 @@ int main(int argc, char const *argv[]) {
       //priors, // the array of priors
       false,  // calculate variable importance
       4,       // number of variables randomly selected at node and used to find the best split(s).
-      100,	 // max number of trees in the forest
-      0.0000001f,				// forrest accuracy
+      1000,	 // max number of trees in the forest
+      0.00001f,				// forrest accuracy
       CV_TERMCRIT_ITER |	CV_TERMCRIT_EPS // termination cirteria
       );
   cout << "run random forest training \n";
